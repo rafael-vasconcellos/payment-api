@@ -1,8 +1,8 @@
 # Sobre
-Resolução do desafio por um completo iniciante em backend
+Resolução do [desafio](https://github.com/PicPay/picpay-desafio-backend) por um completo iniciante em backend
 
 ## API
-algumas rotas fazem uso de uma proto autenticação através do header *"Authorization"*.
+Algumas rotas fazem uso de uma proto autenticação através do header *"Authorization"*.
 ### /api (GET)
 lista as rotas
 ### /user
@@ -30,6 +30,7 @@ interface ICreateUserDTO {
 }
 ```
 ### /transaction
+os métodos GET e DELETE utilizam parâmetros de busca, enquanto o método POST utiliza o body da requisição
 ```typescript
 // POST
 interface ICreateTransactionDTO { 
@@ -44,7 +45,7 @@ interface IReverseTransactionDTO {
 }
 
 // GET
-type IGetTransactionDTO = IGetUser & { 
+interface IGetTransactionDTO extends IGetUser { 
   transactionId?: string 
 }
 ```
