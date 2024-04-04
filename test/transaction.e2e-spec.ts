@@ -13,6 +13,8 @@ import { IReverseTransaction } from 'src/core/useCases/Transaction/IReverseTrans
 import { Transaction } from 'src/core/entities/Transaction';
 import { IMailProvider } from 'src/core/providers/IMailProvider';
 import { MailTrapProvider } from 'src/infra/providers/MailTrap';
+import { ITransactionAuthProvider } from 'src/core/providers/Auth/ITransactionAuth';
+import { TransactionAuthProviderMock } from 'src/application/Transaction/CreateTransaction.spec';
 
 
 
@@ -54,6 +56,9 @@ describe('/api/transaction', () => {
             }, {
                 provide: IMailProvider,
                 useClass: MailTrapProvider
+            }, {
+                provide: ITransactionAuthProvider,
+                useClass: TransactionAuthProviderMock
             }
         ],
         }).compile();

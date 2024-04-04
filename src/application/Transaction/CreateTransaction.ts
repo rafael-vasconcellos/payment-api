@@ -23,7 +23,7 @@ export class CreateTransaction implements ICreateTransaction {
     constructor( 
         private userRepo: IUserRepository, 
         private transactionRepo: ITransactionRepository, 
-        /* private transactionAuthProvider: ITransactionAuthProvider,  */
+        private transactionAuthProvider: ITransactionAuthProvider, 
         private mailProvider: IMailProvider
     ) {}
 
@@ -39,7 +39,7 @@ export class CreateTransaction implements ICreateTransaction {
             } )
         )
         const errors = await validate(transaction)
-        /* const { response: isAuthorized } = await this.transactionAuthProvider.auth(transactionDTO) */
+        const isAuthorized = await this.transactionAuthProvider.auth(transactionDTO)
         const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(':') : []
 
         if( (headerEmail !== sender?.email || headerPass !== sender?.pass) && sender?.id) { throw new Unauthorized() }
@@ -49,7 +49,7 @@ export class CreateTransaction implements ICreateTransaction {
         else if(sender?.type !== 'COMMON') { throw new UserTypeError() }
         else if(transactionDTO?.amount <= 0) { throw new AmountError() }
         else if(sender?.balance < transactionDTO?.amount) { throw new BalanceError() }
-        /* else if(isAuthorized) { throw new Error("Unauthorized!") } */
+        else if(!isAuthorized) { throw new Error("Unauthorized!") }
 
 
 

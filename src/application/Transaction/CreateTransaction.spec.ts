@@ -14,6 +14,8 @@ import { Transaction } from "src/core/entities/Transaction"
 import { NotFound } from "../Errors/User/NotFound"
 import { Unauthorized } from "../Errors/Unauthorized"
 import { UserDatabaseError } from "../Errors/User/Database"
+import { ITransactionAuthProvider } from "src/core/providers/Auth/ITransactionAuth"
+import { ICreateTransactionDTO } from "src/core/useCases/Transaction/ICreateTransaction"
 
 
 
@@ -55,6 +57,12 @@ export async function preps(createUser: CreateUser, updateUser: UpdateUser) {
 
 }
 
+export class TransactionAuthProviderMock implements ITransactionAuthProvider {
+    async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
+        return true
+    }
+}
+
 
 describe('create transaction', () => { 
     let createTransaction: CreateTransaction
@@ -73,6 +81,9 @@ describe('create transaction', () => {
                 {
                     provide: IMailProvider,
                     useClass: MailTrapProvider
+                }, {
+                    provide: ITransactionAuthProvider,
+                    useClass: TransactionAuthProviderMock
                 }
             ]
         }).compile()
