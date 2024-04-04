@@ -1,0 +1,35 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:memDb1?mode=memory&cache=shared"
+}
+
+
+model User {
+    id String @id @unique @default(uuid())
+    document String @unique
+    email String @unique
+    pass String
+    type String
+    balance Int
+    name String
+    lastname String?
+
+
+    senderTransactions Transaction[] @relation("TransactionSender")
+    receiverTransactions Transaction[] @relation("TransactionReceiver")
+}
+
+model Transaction {
+    id String @id @unique @default(uuid())
+    sender String @default(uuid())
+    receiver String @default(uuid())
+    senderUser User @relation("TransactionSender", fields: [sender], references: [id])
+    receiverUser User @relation("TransactionReceiver", fields: [receiver], references: [id])
+    amount Int
+    time DateTime @default(now())
+}
+
