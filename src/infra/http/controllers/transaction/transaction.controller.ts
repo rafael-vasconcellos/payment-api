@@ -17,28 +17,30 @@ export class TransactionController {
         private reverseTransaction: ReverseTransaction
     ) {}
 
-    
-    @Post()
-    async post(@Body() transaction: ICreateTransactionDTO, @Headers() headers: IAuthorizationHeader) {
-        return await this.createTransaction.execute(transaction, headers)
-        .catch(e => { 
-            return {error: e.message}
-        } )
-    }
 
-    @Get()
-    async get(@Query() user: IGetUserDTO & {transactionId?: string}, @Headers() headers: IAuthorizationHeader) { 
-        //console.log(headers)
-        return await this.getTransaction.execute(user, headers)
+    @Post()
+    async post(@Body() transaction: ICreateTransactionDTO, @Headers() headers) { 
+        const authorization = await IAuthorizationHeader.validate(headers)
+        return await this.createTransaction.execute(transaction, authorization)
         .catch(e => { 
             return {error: e.message}
         } )
     }
 
     @Delete()
-    async delete(@Query() queryParams: IReverseTransactionDTO, @Headers() headers: IAuthorizationHeader) { 
+    async delete(@Query() queryParams: IReverseTransactionDTO, @Headers() headers) { 
+        const authorization = await IAuthorizationHeader.validate(headers)
         const { id } = queryParams
-        return await this.reverseTransaction.execute(id, headers)
+        return await this.reverseTransaction.execute(id, authorization)
+        .catch(e => { 
+            return {error: e.message}
+        } )
+    }
+
+    @Get()
+    async get(@Query() user: IGetUserDTO & {transactionId?: string}, @Headers() headers) { 
+        const authorization = await IAuthorizationHeader.validate(headers)
+        return await this.getTransaction.execute(user, authorization)
         .catch(e => { 
             return {error: e.message}
         } )

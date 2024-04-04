@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Headers, Post, Put, Query } from "@nestjs/common";
 import { User } from "@prisma/client";
+import { ValidationError } from "class-validator";
 import { CreateUser } from "src/application/User/CreateUser";
 import { GetUser } from "src/application/User/GetUser";
 import { UpdateUser } from "src/application/User/UpdateUser";
@@ -20,8 +21,16 @@ export class UserController {
 
     @Get()
     async get(@Query() user: IGetUserDTO, @Headers() headers: {Authorization: string}): Promise<User> { 
-        //console.log(headers)
         return await this.getUser.execute(user, headers)
+        .catch(e => { 
+            return {error: e.message} as any
+        } )
+    }
+
+    @Put()
+    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader): Promise<User | ValidationError[]> { 
+        const authorization = await IAuthorizationHeader.validate(headers)
+        return await this.updateUser.execute(user, authorization)
         .catch(e => { 
             return {error: e.message} as any
         } )
@@ -30,14 +39,6 @@ export class UserController {
     @Post()
     async post(@Body() user: ICreateUserDTO): Promise<User> {
         return await this.createUser.execute(user)
-        .catch(e => { 
-            return {error: e.message} as any
-        } )
-    }
-
-    @Put()
-    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader): Promise<User> {
-        return await this.updateUser.execute(user, headers)
         .catch(e => { 
             return {error: e.message} as any
         } )

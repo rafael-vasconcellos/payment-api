@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsIn, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, IsUUID, Length } from "class-validator";
 import { User } from "src/core/entities/User";
 import { IAuthorizationHeader } from "../IAuthorizationHeader";
 
@@ -7,6 +7,10 @@ export interface IGetUser {
 }
 
 export class IGetUserDTO { 
+    @IsOptional()
+    @IsString()
+    @IsUUID()
+    public id?: string
     @IsOptional()
     @IsNumberString()
     @Length(11)

@@ -1,10 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Redirect } from '@nestjs/common';
 
 
-@Controller('/api')
-export class AppController {
+@Controller()
+export class AppController { 
   @Get()
-  getHello(): string {
-    return 'Hello World!';
+  @Redirect('/api', 301)
+  appGet() {}
+  @Get('/api')
+  apiGet(): string {
+    return "{routes: [user, transaction]}";
   }
 }

@@ -66,6 +66,14 @@ describe('/api/user', () => {
         
     });
 
+    it('should fail tha validation (PUT)', () => {
+        return request(app.getHttpServer())
+        .put('/api/user')
+        .send({})
+        .expect(400)
+        
+    });
+
     it('should return 200', () => {
         return request(app.getHttpServer())
         .get('/api/user')

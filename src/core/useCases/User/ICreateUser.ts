@@ -1,4 +1,4 @@
-import { IsEmail, IsIn, IsNotEmpty, IsNumberString, IsString, Length } from "class-validator";
+import { IsEmail, IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, Length } from "class-validator";
 import { User } from "src/core/entities/User";
 
 
@@ -20,6 +20,7 @@ export class ICreateUserDTO {
     @IsString()
     @Length(3)
     public name: string;
+    @IsOptional()
     @IsString()
     public lastname?: string;
     @IsNotEmpty()

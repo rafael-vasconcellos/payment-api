@@ -35,7 +35,7 @@ class ReverseTransactionMock implements IReverseTransaction {
 }
 
 
-describe('/api/user', () => {
+describe('/api/transaction', () => {
     let app: INestApplication;
 
     beforeAll(async () => {
@@ -86,7 +86,6 @@ describe('/api/user', () => {
         return request(app.getHttpServer())
         .get('/api/transaction')
         .query({})
-        .set('Authorization', undefined)
         .expect(400)
         
     });
