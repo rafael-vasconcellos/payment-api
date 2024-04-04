@@ -57,7 +57,7 @@ export async function preps(createUser: CreateUser, updateUser: UpdateUser) {
 
 }
 
-export class TransactionAuthProviderMock implements ITransactionAuthProvider {
+class TransactionAuthProviderMock implements ITransactionAuthProvider {
     async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
         return true
     }

@@ -14,7 +14,6 @@ import { Transaction } from 'src/core/entities/Transaction';
 import { IMailProvider } from 'src/core/providers/IMailProvider';
 import { MailTrapProvider } from 'src/infra/providers/MailTrap';
 import { ITransactionAuthProvider } from 'src/core/providers/Auth/ITransactionAuth';
-import { TransactionAuthProviderMock } from 'src/application/Transaction/CreateTransaction.spec';
 
 
 
@@ -33,6 +32,12 @@ class CreateTransactionMock implements ICreateTransaction {
 class ReverseTransactionMock implements IReverseTransaction {
     async execute(id: string, { Authorization }: IAuthorizationHeader): Promise<Transaction | Transaction[]> {
         return
+    }
+}
+
+class TransactionAuthProviderMock implements ITransactionAuthProvider {
+    async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
+        return true
     }
 }
 
