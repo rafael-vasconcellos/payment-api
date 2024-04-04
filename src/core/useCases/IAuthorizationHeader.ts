@@ -16,8 +16,8 @@ export class IAuthorizationHeader {
 
     public static async validate(value: IAuthorizationHeader) { 
         const instance = new IAuthorizationHeader(value)
-        const result = await validate(instance)
-        if (result.length) { throw new HttpException(JSON.stringify(result), HttpStatus.BAD_REQUEST);
+        const errors = await validate(instance)
+        if (errors.length) { throw new HttpException(JSON.stringify(errors), HttpStatus.BAD_REQUEST);
     }
         else { return instance }
     }
