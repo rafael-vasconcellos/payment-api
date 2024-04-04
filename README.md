@@ -15,6 +15,7 @@ o método GET utiliza parâmetros de busca, enquanto POST e PUT utilizam o body 
 ```typescript
 // GET & PUT
 interface IUserDTO { 
+    id?: string
     document?: string,
     type?: "COMMON" | "MERCHANT",
     name?: string,

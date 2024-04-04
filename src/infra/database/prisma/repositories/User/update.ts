@@ -4,7 +4,8 @@ import { IUserRepository } from "src/core/repositories/IUserRepository";
 
 
 export const update: IUserRepository['update'] = async function update(this: IUserRepository & {prisma: PrismaService}, user: Partial<User>): Promise<User> { 
-    //console.log(user)
+    delete user.id
+    delete user.balance
     return await this.prisma.user.update({
         where: user.document? { document: user.document, } : { email: user.email },
         data: user

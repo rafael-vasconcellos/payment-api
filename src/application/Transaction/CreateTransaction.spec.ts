@@ -19,43 +19,6 @@ import { ICreateTransactionDTO } from "src/core/useCases/Transaction/ICreateTran
 
 
 
-export async function preps(createUser: CreateUser, updateUser: UpdateUser) { 
-    /* await Promise.all([
-        createUser.execute(validUser1),
-
-        createUser.execute({
-            document: '12344425602',
-            email: 'example2@example.com',
-            pass: 'example2',
-            type: 'MERCHANT',
-            name: 'ana',
-        }),
-
-        createUser.execute({
-            document: '12344425603',
-            email: 'example3@example.com',
-            pass: 'example3',
-            type: 'COMMON',
-            name: 'leona',
-        }),
-    ]).catch(r => r) */
-
-
-
-
-    return await Promise.all([ 
-        updateUser.execute({
-            email: 'example2@example.com',
-            balance: 50
-        }, {Authorization: "example2@example.com:example2"}),
-
-        updateUser.execute({
-            email: 'example3@example.com',
-            balance: 1000
-        }, {Authorization: 'example3@example.com:example3'}),
-    ])
-
-}
 
 class TransactionAuthProviderMock implements ITransactionAuthProvider {
     async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
@@ -185,8 +148,6 @@ describe('create transaction', () => {
         let user2: User
         let user3: User
         beforeAll(async() => { 
-            const result = await preps(createUser, updateUser).catch(r => console.log(r))
-            //console.log(result)
             user1 = await getUser.execute( {email: 'example@example.com'} )
             user2 = await getUser.execute( {email: 'example2@example.com'} )
             user3 = await getUser.execute( {email: 'example3@example.com'} )

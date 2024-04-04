@@ -45,6 +45,18 @@ async function main() {
             }
         }),
     ])
+
+    return await Promise.all([ 
+        prisma.user.update({
+            where: { email: 'example2@example.com' },
+            data: { balance: 50 }
+        }),
+
+        prisma.user.update({
+            where: { email: 'example3@example.com' },
+            data: { balance: 1000 }
+        }),
+    ])
 }
 
 main()

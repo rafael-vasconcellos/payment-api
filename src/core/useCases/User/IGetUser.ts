@@ -7,10 +7,10 @@ export interface IGetUser {
 }
 
 export class IGetUserDTO { 
-    /* @IsOptional()
+    @IsOptional()
     @IsString()
     @IsUUID()
-    public id?: string */
+    public id?: string
     @IsOptional()
     @IsNumberString()
     @Length(11)
