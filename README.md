@@ -3,6 +3,11 @@ Resolução do [desafio](https://github.com/PicPay/picpay-desafio-backend) por u
 
 ## API
 Algumas rotas fazem uso de uma proto autenticação através do header *"Authorization"*.
+```typescript
+const AuthorizationHeader = {
+    Authorization: "email:pass"
+}
+```
 ### /api (GET)
 lista as rotas
 ### /user
