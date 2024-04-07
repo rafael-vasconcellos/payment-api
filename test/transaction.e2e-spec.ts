@@ -14,6 +14,7 @@ import { Transaction } from 'src/core/entities/Transaction';
 import { IMailProvider } from 'src/core/providers/IMailProvider';
 import { MailTrapProvider } from 'src/infra/providers/MailTrap';
 import { ITransactionAuthProvider } from 'src/core/providers/Auth/ITransactionAuth';
+import { ConfigModule } from '@nestjs/config';
 
 
 
@@ -47,6 +48,7 @@ describe('/api/transaction', () => {
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
+        imports: [ ConfigModule.forRoot( {envFilePath: '.env'} ) ],
         controllers: [TransactionController],
         providers: [ 
             {

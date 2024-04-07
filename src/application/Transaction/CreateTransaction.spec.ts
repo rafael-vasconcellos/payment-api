@@ -16,6 +16,7 @@ import { Unauthorized } from "../Errors/Unauthorized"
 import { UserDatabaseError } from "../Errors/User/Database"
 import { ITransactionAuthProvider } from "src/core/providers/Auth/ITransactionAuth"
 import { ICreateTransactionDTO } from "src/core/useCases/Transaction/ICreateTransaction"
+import { ConfigModule } from "@nestjs/config"
 
 
 
@@ -37,7 +38,7 @@ describe('create transaction', () => {
 
     beforeAll(async() => { 
         const app: TestingModule = await Test.createTestingModule({
-            imports: [DatabaseModule],
+            imports: [ DatabaseModule, ConfigModule.forRoot( {envFilePath: '.env'} ) ],
             providers: [
                 GetUser, CreateUser, UpdateUser,
                 CreateTransaction, GetTransaction, ReverseTransaction, 
