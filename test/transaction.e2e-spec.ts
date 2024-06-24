@@ -37,7 +37,7 @@ class ReverseTransactionMock implements IReverseTransaction {
 }
 
 class TransactionAuthProviderMock implements ITransactionAuthProvider {
-    async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
+    async auth(createTransactionDTO: ICreateTransactionDTO) {
         return true
     }
 }

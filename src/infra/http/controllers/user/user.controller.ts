@@ -20,27 +20,27 @@ export class UserController {
 
 
     @Get()
-    async get(@Query() user: IGetUserDTO, @Headers() headers: {Authorization: string}): Promise<User> { 
+    async get(@Query() user: IGetUserDTO, @Headers() headers: {Authorization: string}): Promise<User | { error: string }> { 
         return await this.getUser.execute(user, headers)
         .catch(e => { 
-            return {error: e.message} as any
+            return {error: e.message}
         } )
     }
 
     @Put()
-    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader): Promise<User | ValidationError[]> { 
+    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader): Promise<User | ValidationError[] | { error: string }> { 
         const authorization = await IAuthorizationHeader.validate(headers)
         return await this.updateUser.execute(user, authorization)
         .catch(e => { 
-            return {error: e.message} as any
+            return {error: e.message}
         } )
     }
 
     @Post()
-    async post(@Body() user: ICreateUserDTO): Promise<User> {
+    async post(@Body() user: ICreateUserDTO): Promise<User | { error: string }> {
         return await this.createUser.execute(user)
         .catch(e => { 
-            return {error: e.message} as any
+            return {error: e.message}
         } )
     }
 

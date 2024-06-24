@@ -1,28 +1,28 @@
 import { Test, TestingModule } from "@nestjs/testing"
+import { ConfigModule } from "@nestjs/config"
 import { randomUUID } from "node:crypto"
 import { DatabaseModule } from "src/infra/database/database.module"
+import { MailTrapProvider } from "src/infra/providers/MailTrap"
+import { IMailProvider } from "src/core/providers/IMailProvider"
+import { User } from "src/core/entities/User"
+import { Transaction } from "src/core/entities/Transaction"
+import { ITransactionAuthProvider } from "src/core/providers/Auth/ITransactionAuth"
+import { ICreateTransactionDTO } from "src/core/useCases/Transaction/ICreateTransaction"
 import { CreateTransaction } from "./CreateTransaction"
 import { GetUser } from "../User/GetUser"
 import { CreateUser } from "../User/CreateUser"
 import { UpdateUser } from "../User/UpdateUser"
-import { MailTrapProvider } from "src/infra/providers/MailTrap"
-import { IMailProvider } from "src/core/providers/IMailProvider"
-import { User } from "src/core/entities/User"
 import { GetTransaction } from "./GetTransaction"
 import { ReverseTransaction } from "./ReverseTransaction"
-import { Transaction } from "src/core/entities/Transaction"
 import { NotFound } from "../Errors/User/NotFound"
 import { Unauthorized } from "../Errors/Unauthorized"
 import { UserDatabaseError } from "../Errors/User/Database"
-import { ITransactionAuthProvider } from "src/core/providers/Auth/ITransactionAuth"
-import { ICreateTransactionDTO } from "src/core/useCases/Transaction/ICreateTransaction"
-import { ConfigModule } from "@nestjs/config"
 
 
 
 
 class TransactionAuthProviderMock implements ITransactionAuthProvider {
-    async auth(createTransactionDTO: ICreateTransactionDTO): Promise<any> {
+    async auth(createTransactionDTO: ICreateTransactionDTO) {
         return true
     }
 }
@@ -77,7 +77,7 @@ describe('create transaction', () => {
                     sender: '',
                     receiver: '',
                     amount: 0
-                }, {} as any).catch( (r:any) => JSON.parse(r?.message)?.length )
+                }, {} as any).catch(r => JSON.parse(r?.message)?.length )
     
             ).toBeTruthy()
             //.toContain("has failed the validation")

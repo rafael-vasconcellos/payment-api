@@ -56,14 +56,13 @@ describe('/user business rules', () => {
 
 
     test('undefined properties should fail the validation', async() => { 
-        const falsy = undefined as any
-        expect(await userController.post({
+        expect(await userController.post({ 
             document: '1234442560',
             email: 'example@example.com',
-            pass: falsy,
-            name: falsy,
-            type: falsy
-        })//.then( (r:any) => JSON.parse(r?.error)?.length )
+            pass: null,
+            name: null,
+            type: null
+        } as any)//.then(r => JSON.parse(r?.error)?.length )
         ).toBe(undefined)
     })
 

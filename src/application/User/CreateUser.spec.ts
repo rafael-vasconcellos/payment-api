@@ -21,16 +21,15 @@ describe('/user (POST) business rules', () => {
 
     describe('post', () => { 
         test('undefined properties should fail the validation', async() => { 
-            const falsy = undefined as any
-            expect(await createUser.execute({
+            expect(await createUser.execute({ 
                 document: '1234442560',
                 email: 'example@example.com',
-                pass: falsy,
-                name: falsy,
-                type: falsy
-            }).catch(e => e?.message?.length)
+                pass: null,
+                name: null,
+                type: null
+            } as any).catch(e => e?.message?.length)
             ).toBeTruthy()
-            
+
         })
     
         test('undefined object should return prisma error', async() => { 

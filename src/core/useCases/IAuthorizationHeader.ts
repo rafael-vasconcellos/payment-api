@@ -6,12 +6,9 @@ export class IAuthorizationHeader {
     @IsString()
     public Authorization: string
 
-    constructor(init: any) { 
-        if(init?.Authorization) {
-            this.Authorization = init?.Authorization
-        } else { 
-            this.Authorization = null
-        }
+    constructor(init: { Authorization: string }) { 
+        if(typeof init?.Authorization === 'string') { this.Authorization = init?.Authorization } 
+        else { this.Authorization = null }
     }
 
     public static async validate(value: IAuthorizationHeader) { 
