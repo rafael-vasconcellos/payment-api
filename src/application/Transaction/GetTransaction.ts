@@ -22,7 +22,7 @@ export class GetTransaction implements IGetTransaction {
         user: IGetUserDTO & { transactionId?: string; }, 
         { Authorization }: IAuthorizationHeader
     ): Promise<Transaction[] | Transaction> { 
-        
+
         const query: User | undefined = await this.userRepo.get(user)
             .catch(() => {
                 throw new UserDatabaseError()
@@ -30,15 +30,29 @@ export class GetTransaction implements IGetTransaction {
         const { transactionId } = user
         const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(":") : []
 
-        if (transactionId) {
+        if( (headerEmail !== query?.email || headerPass !== query?.pass) && query?.id ) {
+            throw new Unauthorized()
+        }
+        else if (!query) {
+            throw new NotFound()
+        }
+        else if (transactionId) {
             const transaction = await this.transactionRepo.get({ id: transactionId })
+
+            if (!transaction || Array.isArray(transaction)) {
+                throw new NotFound()
+            }
+
+            const isRelatedToUser = transaction.sender === query.id || transaction.receiver === query.id
+
+            if (!isRelatedToUser) {
+                throw new Unauthorized()
+            }
+
             return transaction
         }
-        else if( (headerEmail !== query?.email || headerPass !== query?.pass) && query?.id ) { throw new Unauthorized() }
-        else if (query) {
-            return await this.transactionRepo.get({ sender: query.id })
-        }
-        throw new NotFound()
+
+        return await this.transactionRepo.get({ sender: query.id })
 
     }
 }

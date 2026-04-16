@@ -1,5 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing"
-import { DatabaseModule } from "src/infra/database/database.module"
+﻿import { randomUUID } from "node:crypto"
+import { User } from "src/core/entities/User"
+import { Transaction } from "src/core/entities/Transaction"
+import { ITransactionRepository } from "src/core/repositories/ITransactionRepository"
+import { IUserRepository } from "src/core/repositories/IUserRepository"
 import { GetTransaction } from "src/application/Transaction/GetTransaction"
 import { UserDatabaseError } from "../Errors/User/Database"
 import { NotFound } from "../Errors/User/NotFound"
@@ -7,57 +10,135 @@ import { Unauthorized } from "../Errors/Unauthorized"
 
 
 
-describe('/transaction (GET) business rules', () => { 
+describe("GetTransaction", () => {
     let getTransaction: GetTransaction
-    beforeAll(async() => { 
-        const app: TestingModule = await Test.createTestingModule({
-            imports: [DatabaseModule],
-            providers: [ GetTransaction ]
-        }).compile()
+    let userRepo: jest.Mocked<IUserRepository>
+    let transactionRepo: jest.Mocked<ITransactionRepository>
 
-        getTransaction = app.get<GetTransaction>(GetTransaction)
+    const userId = randomUUID()
+    const otherUserId = randomUUID()
+    const transactionId = randomUUID()
+
+    const user: User = {
+        id: userId,
+        document: "12344425603",
+        type: "COMMON",
+        name: "leona",
+        email: "example3@example.com",
+        pass: "example3",
+        balance: 1000,
+    }
+
+    const transaction: Transaction = {
+        id: transactionId,
+        sender: userId,
+        receiver: otherUserId,
+        amount: 100,
+        time: new Date(),
+    }
+
+    beforeEach(() => {
+        userRepo = {
+            create: jest.fn(),
+            get: jest.fn(),
+            update: jest.fn(),
+        }
+
+        transactionRepo = {
+            get: jest.fn(),
+            create: jest.fn(),
+            delete: jest.fn(),
+        }
+
+        getTransaction = new GetTransaction(userRepo, transactionRepo)
     })
 
+    it("should throw user database error when user lookup fails", async () => {
+        userRepo.get.mockRejectedValue(new Error("db error"))
 
-    test('empty object should return prisma error', async() => { 
-        expect( async() => {
-            await getTransaction.execute({} as any, {} as any)
+        await expect(getTransaction.execute({} as any, {} as any)).rejects.toThrow(UserDatabaseError)
+    })
+
+    it("should throw not found when user does not exist", async () => {
+        userRepo.get.mockResolvedValue(undefined as any)
+
+        await expect(
+            getTransaction.execute(
+                { email: "missing@example.com" },
+                { Authorization: "missing@example.com:missing" }
+            )
+        ).rejects.toThrow(NotFound)
+    })
+
+    it("should reject invalid credentials before returning transactions", async () => {
+        userRepo.get.mockResolvedValue(user)
+
+        await expect(
+            getTransaction.execute(
+                { email: user.email },
+                { Authorization: "wrong@example.com:wrongpass" }
+            )
+        ).rejects.toThrow(Unauthorized)
+
+        expect(transactionRepo.get).not.toHaveBeenCalled()
+    })
+
+    it("should return transactions for the authenticated sender", async () => {
+        const transactions = [transaction]
+
+        userRepo.get.mockResolvedValue(user)
+        transactionRepo.get.mockResolvedValue(transactions)
+
+        await expect(
+            getTransaction.execute(
+                { email: user.email },
+                { Authorization: `${user.email}:${user.pass}` }
+            )
+        ).resolves.toEqual(transactions)
+
+        expect(transactionRepo.get).toHaveBeenCalledWith({ sender: user.id })
+    })
+
+    it("should reject transactionId access when credentials are invalid", async () => {
+        userRepo.get.mockResolvedValue(user)
+
+        await expect(
+            getTransaction.execute(
+                { email: user.email, transactionId },
+                { Authorization: "wrong@example.com:wrongpass" }
+            )
+        ).rejects.toThrow(Unauthorized)
+
+        expect(transactionRepo.get).not.toHaveBeenCalled()
+    })
+
+    it("should reject transactionId access when the transaction is unrelated to the authenticated user", async () => {
+        userRepo.get.mockResolvedValue(user)
+        transactionRepo.get.mockResolvedValue({
+            ...transaction,
+            sender: otherUserId,
+            receiver: randomUUID(),
         })
-        .rejects
-        .toThrow(UserDatabaseError)
+
+        await expect(
+            getTransaction.execute(
+                { email: user.email, transactionId },
+                { Authorization: `${user.email}:${user.pass}` }
+            )
+        ).rejects.toThrow(Unauthorized)
     })
 
-    test('user should not exist', async() => { 
-        expect(async() => {
-            await getTransaction.execute({
-                document: '12345678900',
-                email: 'dada'
-            }, {} as any)
-        })
-        .rejects
-        .toThrow(NotFound)
-    })
+    it("should return a transaction by id when it belongs to the authenticated user", async () => {
+        userRepo.get.mockResolvedValue(user)
+        transactionRepo.get.mockResolvedValue(transaction)
 
-    it('should be unauthorized', async() => { 
-        expect(async() => {
-            await getTransaction.execute({
-                email: 'example@example.com',
-            }, {} as any)
-        })
-        .rejects
-        .toThrow(Unauthorized)
-    })
+        await expect(
+            getTransaction.execute(
+                { email: user.email, transactionId },
+                { Authorization: `${user.email}:${user.pass}` }
+            )
+        ).resolves.toEqual(transaction)
 
-    it('should return empty', async() => { 
-        expect( await getTransaction.execute({
-            email: 'example@example.com',
-        }, {Authorization: 'example@example.com:example1'})
-        ).toStrictEqual([])
+        expect(transactionRepo.get).toHaveBeenCalledWith({ id: transactionId })
     })
-
 })
-
-
-/*
-    get by id and by user
-*/
