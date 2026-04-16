@@ -28,10 +28,6 @@ export class CreateTransaction implements ICreateTransaction {
     ) {}
 
     async execute(transactionDTO: ICreateTransactionDTO, {Authorization}: IAuthorizationHeader): Promise<Transaction> { 
-        const [ sender, receiver ] = await Promise.all([
-            this.userRepo.get( {id: transactionDTO?.sender} ),
-            this.userRepo.get( {id: transactionDTO?.receiver} )
-        ]).catch(e => {throw new UserDatabaseError()})
         const transaction = new Transaction(
             Object.assign(transactionDTO, {
                 id: randomUUID(),
@@ -39,17 +35,22 @@ export class CreateTransaction implements ICreateTransaction {
             } )
         )
         const errors = await validate(transaction)
-        const isAuthorized = await this.transactionAuthProvider.auth(transactionDTO)
-        const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(':') : []
 
-        if( (headerEmail !== sender?.email || headerPass !== sender?.pass) && sender?.id) { throw new Unauthorized() }
-        else if(errors.length) { throw new Error(JSON.stringify(errors)) }
+        const [ sender, receiver ] = await Promise.all([
+            this.userRepo.get( {id: transactionDTO?.sender} ),
+            this.userRepo.get( {id: transactionDTO?.receiver} )
+        ]).catch(e => { throw new UserDatabaseError() })
+        const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(':') : []
+        const isAuthorized = await this.transactionAuthProvider.auth(transactionDTO)
+
+        if(errors.length) { throw new Error(JSON.stringify(errors)) }
         else if(!sender?.id) { throw new NotFound() }
         else if (!receiver?.id) { throw new NotFound() }
         else if(sender?.type !== 'COMMON') { throw new UserTypeError() }
+        else if( (headerEmail !== sender?.email || headerPass !== sender?.pass) && sender?.id) { throw new Unauthorized() }
+        else if(!isAuthorized) { throw new Error("Unauthorized!") }
         else if(transactionDTO?.amount <= 0) { throw new AmountError() }
         else if(sender?.balance < transactionDTO?.amount) { throw new BalanceError() }
-        else if(!isAuthorized) { throw new Error("Unauthorized!") }
 
 
 
