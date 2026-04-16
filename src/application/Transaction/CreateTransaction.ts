@@ -97,8 +97,8 @@ export class CreateTransaction implements ICreateTransaction {
                 body: `
                     You received a new transaction!
 
-                    sender: ${receiver.name} - ${receiver.document}
-                    receiver: ${sender.name} - ${sender.document}
+                    sender: ${sender.name} - ${sender.document}
+                    receiver: ${receiver.name} - ${receiver.document}
                     amount: ${transaction.amount}
                 `
             } )
