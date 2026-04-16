@@ -18,16 +18,27 @@ export class GetTransaction implements IGetTransaction {
         private transactionRepo: ITransactionRepository
      ) {}
 
-    async execute(user: IGetUserDTO & { transactionId?: string; }, {Authorization}: IAuthorizationHeader): Promise<Transaction[] | Transaction> { 
+    async execute(
+        user: IGetUserDTO & { transactionId?: string; }, 
+        { Authorization }: IAuthorizationHeader
+    ): Promise<Transaction[] | Transaction> { 
+        
         const query: User | undefined = await this.userRepo.get(user)
-        .catch(() => {throw new UserDatabaseError()})
+            .catch(() => {
+                throw new UserDatabaseError()
+            })
         const { transactionId } = user
         const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(":") : []
 
-        if (transactionId) {  return this.transactionRepo.get( {id: transactionId} )  }
+        if (transactionId) {
+            const transaction = await this.transactionRepo.get({ id: transactionId })
+            return transaction
+        }
         else if( (headerEmail !== query?.email || headerPass !== query?.pass) && query?.id ) { throw new Unauthorized() }
-        else if (query) {  return await this.transactionRepo.get( {sender: query.id} )  }
-        else { throw new NotFound() }
+        else if (query) {
+            return await this.transactionRepo.get({ sender: query.id })
+        }
+        throw new NotFound()
 
     }
 }
