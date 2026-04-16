@@ -6,8 +6,10 @@ export class IAuthorizationHeader {
     @IsString()
     public Authorization: string
 
-    constructor(init: { Authorization: string }) { 
-        if(typeof init?.Authorization === 'string') { this.Authorization = init?.Authorization } 
+    constructor(init: { Authorization?: string, authorization?: string }) { 
+        const authorization = init?.Authorization ?? init?.authorization
+
+        if(typeof authorization === 'string') { this.Authorization = authorization } 
         else { this.Authorization = null }
     }
 

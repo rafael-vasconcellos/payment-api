@@ -1,12 +1,11 @@
 import { Body, Controller, Get, Headers, Post, Put, Query } from "@nestjs/common";
-import { User } from "@prisma/client";
-import { ValidationError } from "class-validator";
 import { CreateUser } from "src/application/User/CreateUser";
 import { GetUser } from "src/application/User/GetUser";
 import { UpdateUser } from "src/application/User/UpdateUser";
 import { IAuthorizationHeader } from "src/core/useCases/IAuthorizationHeader";
 import { ICreateUserDTO } from "src/core/useCases/User/ICreateUser";
 import { IGetUserDTO } from "src/core/useCases/User/IGetUser";
+import { mapApplicationError } from "../mapApplicationError";
 
 
 
@@ -20,28 +19,31 @@ export class UserController {
 
 
     @Get()
-    async get(@Query() user: IGetUserDTO, @Headers() headers: {Authorization: string}): Promise<User | { error: string }> { 
-        return await this.getUser.execute(user, headers)
-        .catch(e => { 
-            return {error: e.message}
-        } )
+    async get(@Query() user: IGetUserDTO, @Headers() headers: {Authorization: string}) { 
+        try {
+            return await this.getUser.execute(user, headers)
+        } catch (error) {
+            mapApplicationError(error)
+        }
     }
 
     @Put()
-    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader): Promise<User | ValidationError[] | { error: string }> { 
-        const authorization = await IAuthorizationHeader.validate(headers)
-        return await this.updateUser.execute(user, authorization)
-        .catch(e => { 
-            return {error: e.message}
-        } )
+    async put(@Body() user: IGetUserDTO, @Headers() headers: IAuthorizationHeader) { 
+        try {
+            const authorization = await IAuthorizationHeader.validate(headers)
+            return await this.updateUser.execute(user, authorization)
+        } catch (error) {
+            mapApplicationError(error)
+        }
     }
 
     @Post()
-    async post(@Body() user: ICreateUserDTO): Promise<User | { error: string }> {
-        return await this.createUser.execute(user)
-        .catch(e => { 
-            return {error: e.message}
-        } )
+    async post(@Body() user: ICreateUserDTO) {
+        try {
+            return await this.createUser.execute(user)
+        } catch (error) {
+            mapApplicationError(error)
+        }
     }
 
 }

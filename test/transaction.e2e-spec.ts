@@ -15,11 +15,15 @@ import { IMailProvider } from 'src/core/providers/IMailProvider';
 import { MailTrapProvider } from 'src/infra/providers/MailTrap';
 import { ITransactionAuthProvider } from 'src/core/providers/Auth/ITransactionAuth';
 import { ConfigModule } from '@nestjs/config';
+import { Unauthorized } from 'src/application/Errors/Unauthorized';
 
 
 
 class GetTransactionMock implements IGetTransaction {
     async execute(user: IGetUserDTO & { transactionId?: string; }, { Authorization }: IAuthorizationHeader): Promise<Transaction | Transaction[]> {
+        if (user?.transactionId === 'unauthorized') {
+            throw new Unauthorized()
+        }
         return
     }
 }
@@ -100,6 +104,17 @@ describe('/api/transaction', () => {
         .query({})
         .expect(400)
         
+    });
+
+    it('should return 401 for business unauthorized errors', () => {
+        return request(app.getHttpServer())
+        .get('/api/transaction')
+        .query({
+            email: 'example@example.com',
+            transactionId: 'unauthorized',
+        })
+        .set('Authorization', 'anything:anything')
+        .expect(401)
     });
 
 

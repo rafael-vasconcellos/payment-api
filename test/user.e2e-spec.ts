@@ -10,11 +10,15 @@ import { IUpdateUser } from 'src/core/useCases/User/IUpdateUser';
 import { GetUser as GetUserUseCase } from 'src/application/User/GetUser';
 import { CreateUser as CreateUserUseCase } from 'src/application/User/CreateUser';
 import { UpdateUser as UpdateUserUseCase } from 'src/application/User/UpdateUser';
+import { Unauthorized } from 'src/application/Errors/Unauthorized';
 
 
 
 class GetUserMock implements IGetUser {
     async execute(user: IGetUserDTO, { Authorization }: IAuthorizationHeader): Promise<User> {
+        if (user?.email === 'unauthorized@example.com') {
+            throw new Unauthorized()
+        }
         return
     }
 }
@@ -84,6 +88,16 @@ describe('/api/user', () => {
         //.set('Authorization', 'dada')
         .expect(200)
         
+    });
+
+    it('should return 401 for business unauthorized errors', () => {
+        return request(app.getHttpServer())
+        .get('/api/user')
+        .query({
+            email: 'unauthorized@example.com',
+        })
+        .set('Authorization', 'anything:anything')
+        .expect(401)
     });
 
 
