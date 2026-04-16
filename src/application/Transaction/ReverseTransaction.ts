@@ -21,14 +21,16 @@ export class ReverseTransaction implements IReverseTransaction {
     async execute(id: string, { Authorization }: IAuthorizationHeader): Promise<Transaction[] | Transaction> {
         const transaction = await this.transactionRepo.get( {id} )
         .catch( () => {throw new DatabaseError()} ) as Transaction
+
+        if(!transaction?.id) { throw new NotFound() }
+
         const [ sender ] = await Promise.all([
             this.userRepo.get( {id: transaction?.sender} ).catch( () => {throw new UserDatabaseError()} ),
             //this.userRepo.get( {id: transaction?.receiver} )
         ])
         const [ headerEmail, headerPass ] = typeof Authorization==='string'? Authorization.split(":") : []
 
-        if((headerEmail !== sender?.email || headerPass !== sender.pass) && sender.id) { throw new Unauthorized() }
-        if(!transaction?.id) { throw new NotFound() }
+        if((headerEmail !== sender?.email || headerPass !== sender?.pass) && sender?.id) { throw new Unauthorized() }
         return await this.transactionRepo.delete(id)
         .catch( () => {throw new RevertingError()} )
     }
